@@ -1,0 +1,108 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Tasks</h1>
+    <a href="/tasks/new" class="btn btn-primary">
+      <i class="fas fa-plus"></i> New Task
+    </a>
+  </div>
+
+  <!-- Search bar -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form action="/tasks/search" method="GET" class="d-flex">
+        <input type="text" name="q" class="form-control me-2" placeholder="Search tasks..." value="<%= locals.searchQuery || '' %>">
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <% if (locals.searchQuery) { %>
+    <div class="alert alert-info">
+      Search results for: "<%= searchQuery %>" 
+      <a href="/tasks" class="ms-2 btn btn-sm btn-outline-secondary">Clear</a>
+    </div>
+  <% } %>
+
+  <% if (tasks.length === 0) { %>
+    <div class="alert alert-info">
+      No tasks found. <a href="/tasks/new" class="alert-link">Create a new task</a>.
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Project</th>
+            <th>Assigned To</th>
+            <th>Due Date</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tasks.forEach(task => { %>
+            <tr>
+              <td><%= task.title %></td>
+              <td><a href="/projects/<%= task.project_id %>"><%= task.project_name %></a></td>
+              <td><%= task.assigned_username || 'Unassigned' %></td>
+              <td><%= task.due_date ? new Date(task.due_date).toLocaleDateString() : 'Not set' %></td>
+              <td>
+                <span class="badge <%= 
+                  task.priority === 'Low' ? 'bg-info' : 
+                  task.priority === 'Medium' ? 'bg-warning' : 
+                  'bg-danger' 
+                %>"><%= task.priority %></span>
+              </td>
+              <td>
+                <span class="badge <%= 
+                  task.status === 'To Do' ? 'bg-secondary' : 
+                  task.status === 'In Progress' ? 'bg-primary' : 
+                  'bg-success' 
+                %>"><%= task.status %></span>
+              </td>
+              <td>
+                <div class="btn-group">
+                  <a href="/tasks/<%= task.id %>" class="btn btn-sm btn-outline-primary">View</a>
+                  <a href="/tasks/<%= task.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+                  <button type="button" class="btn btn-sm btn-outline-danger" 
+                    data-bs-toggle="modal" data-bs-target="#deleteTask<%= task.id %>">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteTask<%= task.id %>" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Delete Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    Are you sure you want to delete "<%= task.title %>"? This action cannot be undone.
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="/tasks/<%= task.id %>/delete" method="POST">
+                      <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %> 

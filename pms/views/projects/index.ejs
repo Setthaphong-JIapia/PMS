@@ -1,0 +1,97 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Projects</h1>
+    <a href="/projects/new" class="btn btn-primary">
+      <i class="fas fa-plus"></i> New Project
+    </a>
+  </div>
+
+  <!-- Search bar -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form action="/projects/search" method="GET" class="d-flex">
+        <input type="text" name="q" class="form-control me-2" placeholder="Search projects..." value="<%= locals.searchQuery || '' %>">
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <% if (locals.searchQuery) { %>
+    <div class="alert alert-info">
+      Search results for: "<%= searchQuery %>" 
+      <a href="/projects" class="ms-2 btn btn-sm btn-outline-secondary">Clear</a>
+    </div>
+  <% } %>
+
+  <% if (projects.length === 0) { %>
+    <div class="alert alert-info">
+      No projects found. <a href="/projects/new" class="alert-link">Create a new project</a>.
+    </div>
+  <% } else { %>
+    <div class="row">
+      <% projects.forEach(project => { %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0 text-truncate">
+                <a href="/projects/<%= project.id %>" class="text-decoration-none text-dark"><%= project.name %></a>
+              </h5>
+              <span class="badge <%= 
+                project.status === 'Not Started' ? 'bg-secondary' : 
+                project.status === 'In Progress' ? 'bg-primary' : 
+                project.status === 'On Hold' ? 'bg-warning' : 
+                'bg-success' 
+              %>"><%= project.status %></span>
+            </div>
+            <div class="card-body">
+              <p class="card-text text-truncate"><%= project.description || 'No description' %></p>
+              <div class="d-flex justify-content-between">
+                <small class="text-muted">Created by: <%= project.creator_name || 'Unknown' %></small>
+                <% if (project.start_date) { %>
+                  <small class="text-muted">Start: <%= new Date(project.start_date).toLocaleDateString() %></small>
+                <% } %>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent d-flex justify-content-between">
+              <a href="/projects/<%= project.id %>" class="btn btn-sm btn-outline-primary">View</a>
+              <div>
+                <a href="/projects/<%= project.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <button type="button" class="btn btn-sm btn-outline-danger" 
+                  data-bs-toggle="modal" data-bs-target="#deleteProject<%= project.id %>">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteProject<%= project.id %>" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Delete Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete "<%= project.name %>"? This action cannot be undone.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/projects/<%= project.id %>/delete" method="POST">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %> 

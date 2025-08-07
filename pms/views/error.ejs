@@ -1,0 +1,19 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="card">
+    <div class="card-header bg-danger text-white">
+      <h3>Error</h3>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title"><%= message %></h5>
+      <% if (locals.error && process.env.NODE_ENV !== 'production') { %>
+        <pre class="mt-3 p-3 bg-light rounded"><%= error.stack %></pre>
+      <% } %>
+      <a href="javascript:history.back()" class="btn btn-primary mt-3">Go Back</a>
+      <a href="/" class="btn btn-secondary mt-3">Home</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %> 
